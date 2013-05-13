@@ -1,0 +1,6 @@
+; $Id
+name = jQuery Replacer
+description = jQuery replacer for Drupal 6
+core = 6.x
+package = SX
+project = "SX"

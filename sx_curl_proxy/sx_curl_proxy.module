@@ -10,7 +10,7 @@
 /**
  * Implementation of hook_menu()
  */
-function curl_proxy_menu() {
+function sx_curl_proxy_menu() {
 
 	$items = Array();
 
@@ -18,8 +18,8 @@ function curl_proxy_menu() {
 		'title' => 'cURL Proxy',
 		'description' => 'Configure proxy settings used by cURL.',
 		'page callback' => 'drupal_get_form',
-		'page arguments' => array('curl_proxy_admin'),
-		'file' => 'curl_proxy.admin.inc',
+		'page arguments' => array('sx_curl_proxy_admin'),
+		'file' => 'sx_curl_proxy.admin.inc',
 		'access arguments' => Array('administer curlproxy'),
 		'type' => MENU_NORMAL_ITEM,
 		'weight' => -20,
@@ -31,7 +31,7 @@ function curl_proxy_menu() {
 /**
  * Implementation of hook_perm()
  */
-function curl_proxy_perm() {
+function sx_curl_proxy_perm() {
 	return Array("administer curlproxy");
 }
 
@@ -41,12 +41,12 @@ function curl_proxy_perm() {
  *
  * @return Array
  */
-function curl_proxy_settings() {
+function sx_curl_proxy_settings() {
 
-	$host = variable_get("curl_proxy_host", NULL);
-	$port = variable_get("curl_proxy_port", NULL);
+	$host = variable_get("sx_curl_proxy_host", NULL);
+	$port = variable_get("sx_curl_proxy_port", NULL);
 
-	$use_proxy = variable_get("curl_proxy_use", false);
+	$use_proxy = variable_get("sx_curl_proxy_use", false);
 
 	if ($host === NULL || $port === NULL || !$use_proxy) {
 		return false;

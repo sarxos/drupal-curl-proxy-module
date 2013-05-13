@@ -1,0 +1,131 @@
+<?php
+
+/**
+ * Debug mode for JavaScript files. If set to false all JavaScript files will be included
+ * in minified version.
+ */
+define('JAVASCRIPT_DEBUG', false);
+
+
+/**
+ * Hook init impl.
+ */
+function sx_jqreplacer_init() {
+
+	// do not add any JS files for administration pages, for install.php and update.php
+	if (sx_jqreplacer_is_adminstupd()) {
+		return;
+	}
+}
+
+function isBuggyInternetExplorerDetected() {
+	if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function getJavaScriptFilePath($filename) {
+
+	static $module_path = NULL;
+	if ($module_path === NULL) {
+		$module_path = drupal_get_path('module', 'sx_jqreplacer');
+	}
+
+	$path = NULL;
+
+	if (JAVASCRIPT_DEBUG) {
+		$path = $module_path . '/js/' . $filename;
+	} else {
+
+		$n = strpos($filename, '.js');
+		$minified = substr($filename, 0, $n) . '.min.js';
+		$path = $module_path . '/js/' . $minified;
+
+		if (!file_exists($path)) {
+			$path = $module_path . '/js/' . $filename;
+		}
+	}
+
+	return $path;
+}
+
+function sx_jqreplacer_preprocess(&$variables) {
+
+	// do not preprocess scripts for administration pages, for install.php and update.php
+	if (sx_jqreplacer_is_adminstupd()) {
+		return;
+	}
+
+	static $processedJS = false;
+	static $processedCSS = false;
+
+	if (!$processedJS && !empty($variables['scripts'])) {
+
+		$scripts = drupal_add_js();
+		$module_path = drupal_get_path('module', 'sx_jqreplacer');
+
+		// specify new jQuery location
+		$file = getJavaScriptFilePath('jquery.js');
+		$core = array(
+				$file => array('cache' => 1, 'defer' => '', 'preprocess' => 1),
+		);
+
+		// add JSON2 support if IE has been detected
+		if (isBuggyInternetExplorerDetected()) {
+			$file = getJavaScriptFilePath('json2.js');
+			$core[$file] = array('cache' => 1, 'defer' => '', 'preprocess' => 1);
+		}
+
+		// replace old jQuery with new one
+		unset($scripts['core']['misc/jquery.js']);
+		$scripts['core'] = array_merge($core, $scripts['core']);
+
+		// re-render scripts variable
+		$variables['scripts'] = drupal_get_js('header', $scripts);
+		$processedJS = true;
+	}
+
+	if (!$processedCSS && isset($variables['styles'])) {
+
+		$styles = drupal_add_css();
+		$xStyles = array();
+
+		if (isset($styles['all']['theme']) && is_array($styles['all']['theme'])) {
+			foreach ($styles['all']['theme']  as $key => $value) {
+				if (preg_match('/x.styles/', $key)) {
+					$xStyles[$key] = $value;
+					unset($styles['all']['theme'][$key]);
+				}
+			}
+
+			$styles['all']['theme'] = array_merge($styles['all']['theme'], $xStyles);
+
+			// re-render styles variable
+			$variables['styles'] = drupal_get_css($styles);
+
+			$processedCSS = true;
+		}
+	}
+}
+
+/**
+ * Checks if current page is administration, installation or upgrade screen
+ */
+function sx_jqreplacer_is_adminstupd() {
+
+	static $admin_install_or_update = NULL;
+
+	if ($admin_install_or_update === NULL) {
+
+		// get file name of script currently being executed
+		$break = explode('/', $_SERVER['SCRIPT_NAME']);
+		$pfile = $break[count($break) - 1];
+
+		// do not add any JS files for administration pages, for install.php and update.php
+		$admin_install_or_update = arg(0) === 'admin' || $pfile === 'install.php' || $pfile === 'update.php';
+	}
+
+	return $admin_install_or_update;
+}

@@ -1,7 +1,7 @@
 <?php
 
 
-function curl_proxy_admin() {
+function sx_curl_proxy_admin() {
 
 	$form = Array();
 
@@ -10,35 +10,35 @@ function curl_proxy_admin() {
 		'#value' => "<p></p>",
 	);
 
-	$form['curl_proxy_use'] = array(
+	$form['sx_curl_proxy_use'] = array(
 		'#type' => 'checkbox',
 		'#title' => t('Use cURL Proxy'),
 		'#description' => t('Whether or not cURL proxy shall be used.'),
-		'#default_value' => variable_get('curl_proxy_use', false),
+		'#default_value' => variable_get('sx_curl_proxy_use', false),
 	);
 
-	$form['curl_proxy_host'] = array(
+	$form['sx_curl_proxy_host'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Proxy Host'),
 		'#description' => t('This is proxy host used by cURL (in some situations can be leaved empty)'),
-		'#default_value' => variable_get('curl_proxy_host', ''),
+		'#default_value' => variable_get('sx_curl_proxy_host', ''),
 	);
 
-	$form['curl_proxy_port'] = array(
+	$form['sx_curl_proxy_port'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Proxy Port Number'),
 		'#description' => t('This is proxy port number used by cURL'),
-		'#default_value' => variable_get('curl_proxy_port', ''),
+		'#default_value' => variable_get('sx_curl_proxy_port', ''),
 		'#regexp' => "/^\\d+$/",
 	);
 
 	return system_settings_form($form);
 }
 
-function curl_proxy_admin_validate($form, &$form_state) {
+function sx_curl_proxy_admin_validate($form, &$form_state) {
 
-	$host = &$form_state['values']['curl_proxy_host'];
-	$port = &$form_state['values']['curl_proxy_port'];
+	$host = &$form_state['values']['sx_curl_proxy_host'];
+	$port = &$form_state['values']['sx_curl_proxy_port'];
 
 	if (!empty($host)) {
 		// remove slash char from the end of proxy host
@@ -51,6 +51,6 @@ function curl_proxy_admin_validate($form, &$form_state) {
 	}
 
 	if (!preg_match("/^\d+$/", $port)) {
-		form_set_error('curl_proxy_port', t("Proxy port must be a number"), true);
+		form_set_error('sx_curl_proxy_port', t("Proxy port must be a number"), true);
 	}
 }
