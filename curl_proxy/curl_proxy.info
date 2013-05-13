@@ -1,0 +1,7 @@
+; $Id$
+name = cURL Proxy
+description = Proxy settings for cURL engine
+package = SX
+version = "6.x-1.0"
+core = 6.x
+project = "SX"
